@@ -3,8 +3,13 @@ using System.ComponentModel.DataAnnotations;
 
 public class RegisterViewModel
 {
-    [Required(ErrorMessage = "Name is required.")]
-    public string Name { get; set; }
+    [Required(ErrorMessage = "First name is required.")]
+    [Display(Name = "First Name")]
+    public string FirstName { get; set; }
+    
+    [Required(ErrorMessage = "Last name is required.")]
+    [Display(Name = "Last Name")]
+    public string LastName { get; set; }
 
     [Required(ErrorMessage = "Email is required.")]
     [EmailAddress]
