@@ -94,4 +94,48 @@ public class AccountController : Controller
 
         return View(model);
     }
+
+    [HttpGet]
+    public IActionResult ChangePassword()
+    {
+       return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError("", "Something went wrong.");
+            return View(model);
+        }
+
+        var user = await userManager.FindByEmailAsync(model.Email);
+
+        if (user == null)
+        {
+            ModelState.AddModelError("", "Email or password is wrong.");
+            return View(model);
+        }
+
+        var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+        if (result.Succeeded)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+        else
+        {
+            ModelState.AddModelError("", "Email or password is wrong.");
+            return View(model);
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Logout()
+    {
+        await signInManager.SignOutAsync();
+        return RedirectToAction("Index", "Home");
+    }
 }
