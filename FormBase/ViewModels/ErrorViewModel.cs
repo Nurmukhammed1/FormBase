@@ -1,4 +1,4 @@
-namespace FormBase.Models;
+namespace FormBase.ViewModels;
 
 public class ErrorViewModel
 {

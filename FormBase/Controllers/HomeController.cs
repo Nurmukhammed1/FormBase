@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using FormBase.Models;
+using FormBase.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FormBase.Controllers;
 
@@ -12,12 +14,12 @@ public class HomeController : Controller
     {
         _logger = logger;
     }
-
+    
     public IActionResult Index()
     {
         return View();
     }
-
+    
     public IActionResult Privacy()
     {
         return View();
