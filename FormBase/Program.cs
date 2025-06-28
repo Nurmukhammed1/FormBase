@@ -24,6 +24,9 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddScoped<ITemplateService, TemplateService>();
+builder.Services.AddScoped<ITopicService, TopicService>();
+
 var app = builder.Build();
 
 await SeedService.SeedDatabase(app.Services);

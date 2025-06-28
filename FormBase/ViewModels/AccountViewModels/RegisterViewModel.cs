@@ -1,5 +1,6 @@
-namespace FormBase.ViewModels;
 using System.ComponentModel.DataAnnotations;
+
+namespace FormBase.ViewModels.AccountViewModels;
 
 public class RegisterViewModel
 {
