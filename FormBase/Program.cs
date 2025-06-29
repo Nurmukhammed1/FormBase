@@ -1,3 +1,4 @@
+using FormBase;
 using FormBase.Data;
 using FormBase.Models;
 using FormBase.Services;
@@ -10,6 +11,9 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddIdentity<User, IdentityRole>(options =>
     {

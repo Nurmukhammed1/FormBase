@@ -129,20 +129,16 @@ function addQuestion() {
     const container = document.getElementById('questions-container');
     const clone = template.cloneNode(true);
     
-    // Remove the id and show the cloned element
     clone.removeAttribute('id');
     clone.style.display = 'block';
     
-    // Update question number
     clone.querySelector('.question-number').textContent = questionIndex + 1;
     
-    // Update form field names with proper indexing
     clone.querySelector('.question-text').name = `Questions[${questionIndex}].Text`;
     clone.querySelector('.question-type').name = `Questions[${questionIndex}].Type`;
     clone.querySelector('.question-order').name = `Questions[${questionIndex}].Order`;
     clone.querySelector('.question-required').name = `Questions[${questionIndex}].IsRequired`;
     
-    // Set default order value
     clone.querySelector('.question-order').value = questionIndex;
     
     container.appendChild(clone);

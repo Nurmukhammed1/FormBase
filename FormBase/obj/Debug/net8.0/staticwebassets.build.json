@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "e4H9Yt6pOfjTfZ4xiMy+CwKDeQ/l5MkWEccsIhHkRd4=",
+  "Hash": "V4JPdLPbe3urJ/HpND1XE8NP78ZNx2F8B0hEEyiFYQ0=",
   "Source": "FormBase",
   "BasePath": "_content/FormBase",
   "Mode": "Default",
@@ -1233,12 +1233,12 @@
       "OriginalItemSpec": "wwwroot/css/site.css"
     },
     {
-      "Identity": "/Users/nurmukhammedkanafin/RiderProjects/FormBase/FormBase/wwwroot/favicon.ico",
+      "Identity": "/Users/nurmukhammedkanafin/RiderProjects/FormBase/FormBase/wwwroot/favicon.png",
       "SourceId": "FormBase",
       "SourceType": "Discovered",
       "ContentRoot": "/Users/nurmukhammedkanafin/RiderProjects/FormBase/FormBase/wwwroot/",
       "BasePath": "_content/FormBase",
-      "RelativePath": "favicon.ico",
+      "RelativePath": "favicon.png",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -1249,7 +1249,7 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot/favicon.ico"
+      "OriginalItemSpec": "wwwroot/favicon.png"
     },
     {
       "Identity": "/Users/nurmukhammedkanafin/RiderProjects/FormBase/FormBase/wwwroot/js/site.js",

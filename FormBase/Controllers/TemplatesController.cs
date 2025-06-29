@@ -41,7 +41,7 @@ public class TemplatesController : Controller
     {
         var template = await _templateService.GetTemplateByIdAsync(id);
 
-        if (template == null) return NotFound();
+        if (template == null) throw new TemplateNotFoundException(id);
         
         return View(template);
     }
@@ -50,11 +50,8 @@ public class TemplatesController : Controller
     [HttpGet]
     public async Task<IActionResult> Create()
     {
-        var model = new CreateTemplateViewModel
-        {
-            Topics = await _topicService.GetTopicsAsync(),
-            QuestionTypes = Enum.GetValues(typeof(QuestionType)).Cast<QuestionType>().ToList()
-        };
+        var model = new CreateTemplateViewModel();
+        await PopulateCreateViewModelAsync(model);
         return View(model);
     }
 
@@ -63,39 +60,45 @@ public class TemplatesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateTemplateViewModel model)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            var userId = _userManager.GetUserId(User);
+            await PopulateCreateViewModelAsync(model);
+            return View(model);
+        }
+        
+        var userId = _userManager.GetUserId(User);
 
-            var template = new Template
+        var template = new Template
+        {
+            Title = model.Title,
+            Description = model.Description,
+            ImageUrl = model.ImageUrl,
+            IsPublic = model.IsPublic,
+            AuthorId = userId,
+            TopicId = model.TopicId
+        };
+
+        foreach (var questionViewModel in model.Questions)
+        {
+            var question = new Question
             {
-                Title = model.Title,
-                Description = model.Description,
-                ImageUrl = model.ImageUrl,
-                IsPublic = model.IsPublic,
-                AuthorId = userId,
-                TopicId = model.TopicId
+                Text = questionViewModel.Text,
+                Type = questionViewModel.Type,
+                IsRequired = questionViewModel.IsRequired,
+                Order = questionViewModel.Order
             };
-
-            foreach (var questionViewModel in model.Questions)
-            {
-                var question = new Question
-                {
-                    Text = questionViewModel.Text,
-                    Type = questionViewModel.Type,
-                    IsRequired = questionViewModel.IsRequired,
-                    Order = questionViewModel.Order
-                };
                 
-                template.Questions.Add(question);
-            }
-
-            var result = await _templateService.CreateTemplateAsync(template);
-            
-            TempData["SuccessMessage"] = "Template created successfully!";
-            return RedirectToAction(nameof(Index));
+            template.Questions.Add(question);
         }
 
-        return View(model);
+        var result = await _templateService.CreateTemplateAsync(template);
+            
+        return RedirectToAction(nameof(Index));
+    }
+    
+    private async Task PopulateCreateViewModelAsync(CreateTemplateViewModel model)
+    {
+        model.Topics = await _topicService.GetTopicsAsync();
+        model.QuestionTypes = Enum.GetValues(typeof(QuestionType)).Cast<QuestionType>().ToList();
     }
 }
