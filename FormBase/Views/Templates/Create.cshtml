@@ -55,16 +55,18 @@
                             <label asp-for="IsPublic" class="form-check-label">Make this template public</label>
                         </div>
 
-                        <!-- Questions Section -->
                         <div class="section-header mb-3">
                             <h5>Questions</h5>
-                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addQuestion()">
+                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                    hx-get="/Templates/AddQuestion"
+                                    hx-target="#questions-container"
+                                    hx-swap="beforeend">
                                 <i class="fas fa-plus"></i> Add Question
                             </button>
                         </div>
 
                         <div id="questions-container">
-                            <!-- Questions will be dynamically added here -->
+                            
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
@@ -78,127 +80,3 @@
     </div>
 </div>
 
-<!-- Question Template (Hidden) -->
-<div id="question-template" style="display: none;">
-    <div class="question-item card mb-3">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="card-title mb-0">Question <span class="question-number"></span></h6>
-                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeQuestion(this)">
-                    <i class="fas fa-trash"></i> Remove
-                </button>
-            </div>
-            
-            <div class="row">
-                <div class="col-md-8">
-                    <label class="form-label">Question Text</label>
-                    <input type="text" class="form-control question-text" name="" required />
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Type</label>
-                    <select class="form-select question-type" name="">
-                        @foreach (var questionType in Model.QuestionTypes)
-                        {
-                            <option value="@((int)questionType)">@questionType.ToString()</option>
-                        }
-                    </select>
-                </div>
-            </div>
-            
-            <div class="row mt-3">
-                <div class="col-md-6">
-                    <label class="form-label">Order</label>
-                    <input type="number" class="form-control question-order" name="" min="0" value="0" />
-                </div>
-                <div class="col-md-6 d-flex align-items-end">
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input question-required" name="" />
-                        <label class="form-check-label">Required</label>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-let questionIndex = 0;
-
-function addQuestion() {
-    const template = document.getElementById('question-template');
-    const container = document.getElementById('questions-container');
-    const clone = template.cloneNode(true);
-    
-    clone.removeAttribute('id');
-    clone.style.display = 'block';
-    
-    clone.querySelector('.question-number').textContent = questionIndex + 1;
-    
-    clone.querySelector('.question-text').name = `Questions[${questionIndex}].Text`;
-    clone.querySelector('.question-type').name = `Questions[${questionIndex}].Type`;
-    clone.querySelector('.question-order').name = `Questions[${questionIndex}].Order`;
-    clone.querySelector('.question-required').name = `Questions[${questionIndex}].IsRequired`;
-    
-    clone.querySelector('.question-order').value = questionIndex;
-    
-    container.appendChild(clone);
-    questionIndex++;
-    
-    updateQuestionNumbers();
-}
-
-function removeQuestion(button) {
-    const questionItem = button.closest('.question-item');
-    questionItem.remove();
-    updateQuestionNumbers();
-    reindexQuestions();
-}
-
-function updateQuestionNumbers() {
-    const questions = document.querySelectorAll('.question-item');
-    questions.forEach((question, index) => {
-        question.querySelector('.question-number').textContent = index + 1;
-        question.querySelector('.question-order').value = index;
-    });
-}
-
-function reindexQuestions() {
-    const questions = document.querySelectorAll('.question-item');
-    questions.forEach((question, index) => {
-        question.querySelector('.question-text').name = `Questions[${index}].Text`;
-        question.querySelector('.question-type').name = `Questions[${index}].Type`;
-        question.querySelector('.question-order').name = `Questions[${index}].Order`;
-        question.querySelector('.question-required').name = `Questions[${index}].IsRequired`;
-    });
-    questionIndex = questions.length;
-}
-
-// Add initial question on page load
-document.addEventListener('DOMContentLoaded', function() {
-    addQuestion();
-});
-</script>
-
-<style>
-.section-header {
-    border-bottom: 2px solid #dee2e6;
-    padding-bottom: 0.5rem;
-    display: flex;
-    justify-content: between;
-    align-items: center;
-}
-
-.section-header h5 {
-    margin: 0;
-    flex-grow: 1;
-}
-
-.question-item {
-    border-left: 4px solid #007bff;
-}
-
-.question-number {
-    font-weight: bold;
-    color: #007bff;
-}
-</style>

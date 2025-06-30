@@ -101,4 +101,22 @@ public class TemplatesController : Controller
         model.Topics = await _topicService.GetTopicsAsync();
         model.QuestionTypes = Enum.GetValues(typeof(QuestionType)).Cast<QuestionType>().ToList();
     }
+
+
+    [HttpGet]
+    public IActionResult AddQuestion()
+    {
+        var questionIndex = DateTimeOffset.UtcNow.Ticks;
+    
+        ViewData["Index"] = questionIndex;
+        ViewBag.QuestionTypes = Enum.GetValues(typeof(QuestionType)).Cast<QuestionType>().ToList();
+
+        return PartialView("_QuestionPartial", new CreateQuestionViewModel());
+    }
+
+    [HttpDelete]
+    public IActionResult RemoveQuestion(int index)
+    {
+        return Content("");
+    }
 }

@@ -1,0 +1,52 @@
+@model FormBase.ViewModels.CreateQuestionViewModel
+
+@{
+    var index = ViewData["Index"]?.ToString() ?? DateTimeOffset.UtcNow.Ticks.ToString();
+}
+
+<div class="question-item card mb-3" id="question-@index">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="card-title mb-0">Question</h6>
+            <button type="button" class="btn btn-sm btn-outline-danger remove-question-btn"
+                    data-question-id="@index">
+                <i class="fas fa-trash"></i> Remove
+            </button>
+        </div>
+        
+        <input type="hidden" name="Questions.Index" value="@index" />
+        
+        <div class="row">
+            <div class="col-md-8">
+                <label class="form-label">Question Text</label>
+                <input name="Questions[@index].Text" class="form-control" required />
+                <div class="invalid-feedback">Question text is required.</div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Type</label>
+                <select name="Questions[@index].Type" class="form-select" required>
+                    @foreach (var questionType in ViewBag.QuestionTypes as IEnumerable<QuestionType>)
+                    {
+                        <option value="@((int)questionType)">@questionType.ToString()</option>
+                    }
+                </select>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <label class="form-label">Order</label>
+                <input name="Questions[@index].Order" class="form-control question-order" 
+                       type="number" min="0" value="0" />
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+                <div class="form-check">
+                    <input name="Questions[@index].IsRequired" class="form-check-input" 
+                           type="checkbox" value="true" />
+                    <input name="Questions[@index].IsRequired" type="hidden" value="false" />
+                    <label class="form-check-label">Required</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

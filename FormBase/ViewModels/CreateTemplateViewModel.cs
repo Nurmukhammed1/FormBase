@@ -28,18 +28,3 @@ public class CreateTemplateViewModel
     public IEnumerable<QuestionType> QuestionTypes { get; set; } = new List<QuestionType>();
     public List<CreateQuestionViewModel> Questions { get; set; } = new List<CreateQuestionViewModel>();
 }
-
-public class CreateQuestionViewModel
-{
-    [Microsoft.Build.Framework.Required]
-    [StringLength(100, ErrorMessage = "Question cannot exceed 100 characters")]
-    public string Text { get; set; } = string.Empty;
-
-    [Required]
-    public QuestionType Type { get; set; }
-    
-    [Range(0, int.MaxValue)]
-    public int Order { get; set; }
-
-    public bool IsRequired { get; set; } = false;
-}
