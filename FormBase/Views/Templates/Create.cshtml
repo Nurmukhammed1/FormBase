@@ -13,16 +13,15 @@
                 </div>
                 <div class="card-body">
                     <form asp-action="Create" method="post" id="createTemplateForm">
-                        @Html.AntiForgeryToken()
                         
-                        <!-- Template Details Section -->
+                        @Html.AntiForgeryToken()
                         <div class="section-header mb-3">
                             <h5>Template Details</h5>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label asp-for="Title" class="form-label">Title</label>
-                            <input asp-for="Title" class="form-control" />
+                            <input asp-for="Title" class="form-control"/>
                             <span asp-validation-for="Title" class="text-danger"></span>
                         </div>
 
@@ -34,7 +33,7 @@
 
                         <div class="mb-3">
                             <label asp-for="ImageUrl" class="form-label">Image URL</label>
-                            <input asp-for="ImageUrl" class="form-control" />
+                            <input asp-for="ImageUrl" class="form-control"/>
                             <span asp-validation-for="ImageUrl" class="text-danger"></span>
                         </div>
 
@@ -51,7 +50,7 @@
                         </div>
 
                         <div class="mb-3 form-check">
-                            <input asp-for="IsPublic" class="form-check-input" />
+                            <input asp-for="IsPublic" class="form-check-input"/>
                             <label asp-for="IsPublic" class="form-check-label">Make this template public</label>
                         </div>
 
@@ -66,7 +65,7 @@
                         </div>
 
                         <div id="questions-container">
-                            
+
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">

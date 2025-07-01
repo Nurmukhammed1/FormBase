@@ -22,6 +22,7 @@ public class TemplateService : ITemplateService
         
         return await _context.Templates
             .Where(t => t.AuthorId == userId)
+            .Include(t => t.Topic)
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
     }
@@ -39,6 +40,9 @@ public class TemplateService : ITemplateService
     public async Task<Template?> GetTemplateByIdAsync(int id)
     {
         var template = await _context.Templates
+            .Include(t => t.Author)
+            .Include(t => t.Topic)
+            .Include(t => t.Questions)
             .FirstOrDefaultAsync(t => t.Id == id);
 
         return template;

@@ -19,32 +19,50 @@ public class TemplatesController : Controller
         _userManager = userManager;
         _topicService = topicService;
     }
-    
+
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> UserTemplates()
+    public async Task<IActionResult> Index()
     {
         var userId = _userManager.GetUserId(User);
         var templates = await _templateService.GetUserTemplatesAsync(userId);
         return View(templates);
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Index()
-    {
-        var templates = await _templateService.GetPublicTemplatesAsync();
-        return View(templates);
-    }
-
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
         var template = await _templateService.GetTemplateByIdAsync(id);
 
         if (template == null) throw new TemplateNotFoundException(id);
+
+        var user = _userManager.GetUserAsync(User);
+        var canEdit = CanUserEditTemplate(user.Result, template);
+
+        var model = new TemplateDetailViewModel()
+        {
+            Title = template.Title,
+            Description = template.Description,
+            ImageUrl = template.ImageUrl,
+            IsPublic = template.IsPublic,
+            Topic = template.Topic,
+            Author = template.Author,
+            Questions = template.Questions,
+            CanEdit = canEdit.Result
+        };
         
-        return View(template);
+        return View(model);
     }
+
+    private async Task<bool> CanUserEditTemplate(User user, Template template)
+    {
+        if (await _userManager.IsInRoleAsync(user, "Admin") || template.AuthorId == user.Id) 
+            return true;
+
+        return false;
+    }
+    
 
     [Authorize]
     [HttpGet]
@@ -100,6 +118,13 @@ public class TemplatesController : Controller
     {
         model.Topics = await _topicService.GetTopicsAsync();
         model.QuestionTypes = Enum.GetValues(typeof(QuestionType)).Cast<QuestionType>().ToList();
+    }
+
+
+    [HttpGet]
+    public IActionResult Edit()
+    {
+        return View();
     }
 
 

@@ -1,0 +1,82 @@
+@model FormBase.ViewModels.CreateTemplateViewModel
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">Edit Template</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" id="createTemplateForm">
+                            @Html.AntiForgeryToken()
+
+                            <div class="mb-3">
+                                <label asp-for="Title" class="form-label">Title</label>
+                                <input asp-for="Title" class="form-control"/>
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label">Description</label>
+                                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="ImageUrl" class="form-label">Image URL</label>
+                                <input asp-for="ImageUrl" class="form-control"/>
+                                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="TopicId" class="form-label">Topic</label>
+                                <select asp-for="TopicId" class="form-select">
+                                    <option value="">Select a topic...</option>
+                                    @foreach (var topic in Model.Topics)
+                                    {
+                                        <option value="@topic.Id" selected="@(topic.Id == Model.TopicId)">@topic.Name</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="TopicId" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input asp-for="IsPublic" class="form-check-input"/>
+                                <label asp-for="IsPublic" class="form-check-label">Make this template public</label>
+                            </div>
+
+                            <div class="section-header mb-3">
+                                <h5>Questions</h5>
+                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                        hx-get="/Templates/AddQuestion"
+                                        hx-target="#questions-container"
+                                        hx-swap="beforeend">
+                                    <i class="fas fa-plus"></i> Add Question
+                                </button>
+                            </div>
+
+                            <div id="questions-container">
+                                @* Questions will be loaded here *@
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Back to List
+                                </a>
+                            </div>
+                        </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

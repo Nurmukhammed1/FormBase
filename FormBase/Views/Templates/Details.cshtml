@@ -1,0 +1,116 @@
+@model FormBase.ViewModels.TemplateDetailViewModel
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">Template Details</h3>
+                </div>
+                <div class="card-body">
+                    <div class="template-info">
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <div class="mb-3 text-center">
+                                    <img src="@Model.ImageUrl" alt="@Model.Title" class="img-fluid rounded" style="max-height: 200px;">
+                                </div>
+                            }
+
+                            <div class="mb-3">
+                                <h5 class="text-muted">Title</h5>
+                                <p class="fs-4 fw-bold">@Model.Title</p>
+                            </div>
+
+                            <div class="mb-3">
+                                <h5 class="text-muted">Description</h5>
+                                <p>@(string.IsNullOrEmpty(Model.Description) ? "No description provided" : Model.Description)</p>
+                            </div>
+
+                            <div class="mb-3">
+                                <h5 class="text-muted">Topic</h5>
+                                <p>
+                                    <span class="badge bg-info">@Model.Topic.Name</span>
+                                </p>
+                            </div>
+
+                            <div class="mb-3">
+                                <h5 class="text-muted">Visibility</h5>
+                                <p>
+                                    @if (Model.IsPublic)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-globe"></i> Public
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-lock"></i> Private
+                                        </span>
+                                    }
+                                </p>
+                            </div>
+
+                            @if (Model.Questions?.Any() == true)
+                            {
+                                <div class="mb-3">
+                                    <div class="questions-preview">
+                                        @foreach (var question in Model.Questions)
+                                        {
+                                            <div class="card mb-2">
+                                                <div class="card-body py-2">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span class="question-text">@question.Text</span>
+                                                        <span class="badge bg-light text-dark">@question.Type</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="mb-3">
+                                    <h5 class="text-muted">Questions</h5>
+                                    <p class="text-muted">No questions added yet</p>
+                                </div>
+                            }
+
+                            <div class="template-metadata mt-4 pt-3 border-top">
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <small class="text-muted">
+                                            <strong>Author:</strong> @Model.Author.FirstName @Model.Author.LastName
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to List
+                            </a>
+                           @if (Model.CanEdit)
+                            {
+                                <a asp-action="Edit" class="btn btn-dark">Edit</a>
+                            }
+                            @if (Model.IsPublic || (Model.CanEdit && !Model.IsPublic))
+                            {
+                                <a class="btn btn-primary">
+                                    <i class="fas fa-play"></i> Fill Template
+                                </a>
+                            }
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
