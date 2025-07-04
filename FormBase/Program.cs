@@ -29,6 +29,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<ITemplateService, TemplateService>();
+builder.Services.AddScoped<IFormService, FormService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
 
 var app = builder.Build();

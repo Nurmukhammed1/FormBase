@@ -11,6 +11,9 @@ public class Answer
     public int QuestionId { get; set; }
     public Question Question { get; set; }
     
+    public int FormId { get; set; }
+    public Form Form { get; set; }
+    
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

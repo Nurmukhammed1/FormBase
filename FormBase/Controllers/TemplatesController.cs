@@ -37,11 +37,12 @@ public class TemplatesController : Controller
 
         if (template == null) throw new TemplateNotFoundException(id);
 
-        var user = _userManager.GetUserAsync(User);
-        var canEdit = CanUserEditTemplate(user.Result, template);
+        var userId = _userManager.GetUserId(User);
+        var canEdit = CanUserEditTemplate(template, userId);
 
         var model = new TemplateDetailViewModel()
         {
+            Id = template.Id,
             Title = template.Title,
             Description = template.Description,
             ImageUrl = template.ImageUrl,
@@ -49,21 +50,13 @@ public class TemplatesController : Controller
             Topic = template.Topic,
             Author = template.Author,
             Questions = template.Questions,
-            CanEdit = canEdit.Result
+            CanEdit = canEdit
         };
         
         return View(model);
     }
-
-    private async Task<bool> CanUserEditTemplate(User user, Template template)
-    {
-        if (await _userManager.IsInRoleAsync(user, "Admin") || template.AuthorId == user.Id) 
-            return true;
-
-        return false;
-    }
     
-
+    
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> Create()
@@ -121,27 +114,176 @@ public class TemplatesController : Controller
     }
 
 
+    [Authorize]
     [HttpGet]
-    public IActionResult Edit()
+    public async Task<IActionResult> Edit(int id)
     {
-        return View();
+        var template = await _templateService.GetTemplateByIdAsync(id);
+        
+        if (template == null) throw new TemplateNotFoundException(id);
+
+        var userId = _userManager.GetUserId(User);
+        
+        if (!CanUserEditTemplate(template, userId)) return Forbid();
+        
+        var model = new EditTemplateViewModel
+        {
+            Id = template.Id,
+            Title = template.Title ?? string.Empty,
+            Description = template.Description ?? string.Empty,
+            ImageUrl = template.ImageUrl,
+            IsPublic = template.IsPublic,
+            TopicId = template.TopicId,
+            Questions = template.Questions.OrderBy(q => q.Order).Select(q => new EditQuestionViewModel
+            {
+                Id = q.Id,
+                Text = q.Text ?? string.Empty,
+                Type = q.Type,
+                Order = q.Order,
+                IsRequired = q.IsRequired
+            }).ToList()
+        };
+
+        await PopulateEditViewModelAsync(model);
+        return View(model);
+    }
+
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, EditTemplateViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            await PopulateEditViewModelAsync(model);
+            return View(model);
+        }
+
+        var template = await _templateService.GetTemplateByIdAsync(id);
+        
+        var userId = _userManager.GetUserId(User);
+        
+        if (!CanUserEditTemplate(template, userId)) return Forbid();
+        
+        template.Title = model.Title;
+        template.Description = model.Description;
+        template.ImageUrl = model.ImageUrl;
+        template.IsPublic = model.IsPublic;
+        template.TopicId = model.TopicId;
+        template.UpdatedAt = DateTime.UtcNow;
+        
+        MapQuestions(template, model.Questions);
+        await _templateService.UpdateTemplateAsync(template);
+        
+        return RedirectToAction(nameof(Details), new { id = model.Id });
+    }
+    
+    private void MapQuestions(Template template, List<EditQuestionViewModel> editedQuestions)
+    {
+        var existingQuestions = template.Questions.ToList();
+
+        var editedQuestionsToDelete = editedQuestions
+            .Where(q => q.IsDeleted)
+            .ToList();
+
+        var questionsToDelete = existingQuestions
+            .Where(eq => editedQuestionsToDelete.Any(ed => ed.Id == eq.Id))
+            .ToList();
+
+        foreach (var question in questionsToDelete)
+        {
+            template.Questions.Remove(question);
+        }
+        
+        foreach (var questionViewModel in editedQuestions.Where(q => !q.IsDeleted))
+        {
+            if (questionViewModel.Id.HasValue)
+            {
+                var existingQuestion = existingQuestions.FirstOrDefault(q => q.Id == questionViewModel.Id.Value);
+                if (existingQuestion != null)
+                {
+                    existingQuestion.Text = questionViewModel.Text;
+                    existingQuestion.Type = questionViewModel.Type;
+                    existingQuestion.Order = questionViewModel.Order;
+                    existingQuestion.IsRequired = questionViewModel.IsRequired;
+                }
+            }
+            else
+            {
+                var newQuestion = new Question
+                {
+                    Text = questionViewModel.Text,
+                    Type = questionViewModel.Type,
+                    Order = questionViewModel.Order,
+                    IsRequired = questionViewModel.IsRequired,
+                    TemplateId = template.Id
+                };
+                template.Questions.Add(newQuestion);
+            }
+        }
+    }
+
+    private async Task PopulateEditViewModelAsync(EditTemplateViewModel model)
+    {
+        model.Topics = await _topicService.GetTopicsAsync();
+        model.QuestionTypes = Enum.GetValues(typeof(QuestionType)).Cast<QuestionType>().ToList();
     }
 
 
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var template = await _templateService.GetTemplateByIdAsync(id);
+        if (template == null) return NotFound();
+        
+        var userId = _userManager.GetUserId(User);
+        
+        if (!CanUserEditTemplate(template, userId)) return Forbid();
+
+        var result = await _templateService.DeleteTemplateAsync(id);
+
+        if (!result)
+        {
+            TempData["ErrorMessage"] = "Failed to delete the template. Please try again.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+        
+        TempData["SuccessMessage"] = "Form deleted successfully.";
+        return RedirectToAction(nameof(Index));
+    }
+    
+
     [HttpGet]
-    public IActionResult AddQuestion()
+    public IActionResult AddQuestion(bool isEdit = false)
     {
         var questionIndex = DateTimeOffset.UtcNow.Ticks;
     
         ViewData["Index"] = questionIndex;
+        ViewData["IsEdit"] = isEdit;
         ViewBag.QuestionTypes = Enum.GetValues(typeof(QuestionType)).Cast<QuestionType>().ToList();
 
+        if (isEdit)
+        {
+            return PartialView("_EditQuestionPartial", new EditQuestionViewModel());
+        }
+    
         return PartialView("_QuestionPartial", new CreateQuestionViewModel());
     }
 
+    [Authorize]
     [HttpDelete]
-    public IActionResult RemoveQuestion(int index)
+    public IActionResult RemoveQuestion(string index)
     {
         return Content("");
+    }
+    
+    
+    private bool CanUserEditTemplate(Template template, string userId)
+    {
+        if (User.IsInRole("Admin") || template.AuthorId == userId) 
+            return true;
+
+        return false;
     }
 }

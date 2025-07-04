@@ -1,0 +1,200 @@
+@model FormBase.ViewModels.FormDetailViewModel
+
+@{
+    ViewData["Title"] = "Form Details";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-file-alt me-2"></i>Form Details
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Form Metadata -->
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="mb-1">Template</h5>
+                                <p class="text-muted">@Model.Template.Title</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="mb-1">Author</h5>
+                                <p class="text-muted">@Model.Author.UserName</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="mb-1">Filled At</h5>
+                                <p class="text-muted">@Model.FilledAt.ToString("MMM dd, yyyy HH:mm")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="mb-1">Last Updated</h5>
+                                <p class="text-muted">@Model.UpdatedAt.ToString("MMM dd, yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if (Model.Template.Questions.Any())
+                    {
+                        <div class="mb-4">
+                            <h4 class="mb-3">
+                                <i class="fas fa-question-circle me-2"></i>Questions & Answers
+                            </h4>
+                            
+                            @foreach (var question in Model.Template.Questions)
+                            {
+                                var answer = Model.Answers.FirstOrDefault(a => a.QuestionId == question.Id);
+                                
+                                <div class="mb-4 p-3 border rounded">
+                                    <div class="mb-3">
+                                        <h5 class="mb-1">
+                                            @question.Text
+                                            @if (question.IsRequired)
+                                            {
+                                                <span class="text-danger">*</span>
+                                            }
+                                        </h5>
+                                        <small class="text-muted">Type: @question.Type</small>
+                                    </div>
+                                    
+                                    <div class="answer-display">
+                                        @if (answer != null)
+                                        {
+                                            <div class="p-3 bg-light rounded">
+                                                @switch (question.Type)
+                                                {
+                                                    case QuestionType.SingleLine:
+                                                        <div class="answer-text">
+                                                            @if (!string.IsNullOrEmpty(answer.TextValue))
+                                                            {
+                                                                @Html.Raw(answer.TextValue.Replace("\n", "<br />"))
+                                                            }
+                                                            else
+                                                            {
+                                                                <em class="text-muted">No answer provided</em>
+                                                            }
+                                                        </div>
+                                                        break;
+                                                        
+                                                    case QuestionType.Integer:
+                                                        <div class="answer-number">
+                                                            @if (answer.IntegerValue.HasValue)
+                                                            {
+                                                                <strong>@answer.IntegerValue.Value</strong>
+                                                            }
+                                                            else
+                                                            {
+                                                                <em class="text-muted">No answer provided</em>
+                                                            }
+                                                        </div>
+                                                        break;
+                                                        
+                                                    case QuestionType.Checkbox:
+                                                        <div class="answer-checkbox">
+                                                            @if (answer.BooleanValue.HasValue)
+                                                            {
+                                                                if (answer.BooleanValue.Value)
+                                                                {
+                                                                    <span class="badge bg-success">
+                                                                        <i class="fas fa-check me-1"></i>Yes / Checked
+                                                                    </span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="badge bg-secondary">
+                                                                        <i class="fas fa-times me-1"></i>No / Unchecked
+                                                                    </span>
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                <em class="text-muted">No answer provided</em>
+                                                            }
+                                                        </div>
+                                                        break;
+                                                        
+                                                    default:
+                                                        <div class="answer-string">
+                                                            @if (!string.IsNullOrEmpty(answer.StringValue))
+                                                            {
+                                                                @answer.StringValue
+                                                            }
+                                                            else
+                                                            {
+                                                                <em class="text-muted">No answer provided</em>
+                                                            }
+                                                        </div>
+                                                        break;
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="p-3 bg-light rounded">
+                                                <em class="text-muted">No answer provided</em>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            This form template has no questions.
+                        </div>
+                    }
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="@Url.Action("Index")" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Forms
+                        </a>
+                        
+                        @if (Model.CanEdit)
+                        {
+                            <div>
+                                <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-warning me-2">
+                                    <i class="fas fa-edit me-2"></i>Edit Form
+                                </a>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="fas fa-trash me-2"></i>Delete Form
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.CanEdit)
+{
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this form? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

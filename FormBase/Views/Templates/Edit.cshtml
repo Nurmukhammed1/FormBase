@@ -1,7 +1,7 @@
-@model FormBase.ViewModels.CreateTemplateViewModel
+@model FormBase.ViewModels.EditTemplateViewModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Edit Template";
     Layout = "_Layout";
 }
 
@@ -13,70 +13,155 @@
                     <h3 class="card-title mb-0">Edit Template</h3>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Edit" method="post" id="createTemplateForm">
-                            @Html.AntiForgeryToken()
+                    <form asp-action="Edit" method="post" id="editTemplateForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
 
-                            <div class="mb-3">
-                                <label asp-for="Title" class="form-label">Title</label>
-                                <input asp-for="Title" class="form-control"/>
-                                <span asp-validation-for="Title" class="text-danger"></span>
-                            </div>
+                        <div class="section-header mb-3">
+                            <h5>Template Details</h5>
+                        </div>
 
-                            <div class="mb-3">
-                                <label asp-for="Description" class="form-label">Description</label>
-                                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                                <span asp-validation-for="Description" class="text-danger"></span>
-                            </div>
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">Title</label>
+                            <input asp-for="Title" class="form-control"/>
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
 
-                            <div class="mb-3">
-                                <label asp-for="ImageUrl" class="form-label">Image URL</label>
-                                <input asp-for="ImageUrl" class="form-control"/>
-                                <span asp-validation-for="ImageUrl" class="text-danger"></span>
-                            </div>
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
 
-                            <div class="mb-3">
-                                <label asp-for="TopicId" class="form-label">Topic</label>
-                                <select asp-for="TopicId" class="form-select">
-                                    <option value="">Select a topic...</option>
-                                    @foreach (var topic in Model.Topics)
-                                    {
-                                        <option value="@topic.Id" selected="@(topic.Id == Model.TopicId)">@topic.Name</option>
-                                    }
-                                </select>
-                                <span asp-validation-for="TopicId" class="text-danger"></span>
-                            </div>
+                        <div class="mb-3">
+                            <label asp-for="ImageUrl" class="form-label">Image URL</label>
+                            <input asp-for="ImageUrl" class="form-control"/>
+                            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                        </div>
 
-                            <div class="mb-3 form-check">
-                                <input asp-for="IsPublic" class="form-check-input"/>
-                                <label asp-for="IsPublic" class="form-check-label">Make this template public</label>
-                            </div>
+                        <div class="mb-3">
+                            <label asp-for="TopicId" class="form-label">Topic</label>
+                            <select asp-for="TopicId" class="form-select">
+                                <option value="">Select a topic...</option>
+                                @foreach (var topic in Model.Topics)
+                                {
+                                    <option value="@topic.Id" selected="@(topic.Id == Model.TopicId)">@topic.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="TopicId" class="text-danger"></span>
+                        </div>
 
-                            <div class="section-header mb-3">
-                                <h5>Questions</h5>
-                                <button type="button" class="btn btn-sm btn-outline-primary"
-                                        hx-get="/Templates/AddQuestion"
-                                        hx-target="#questions-container"
-                                        hx-swap="beforeend">
-                                    <i class="fas fa-plus"></i> Add Question
-                                </button>
-                            </div>
+                        <div class="mb-3 form-check">
+                            <input asp-for="IsPublic" class="form-check-input"/>
+                            <label asp-for="IsPublic" class="form-check-label">Make this template public</label>
+                        </div>
 
-                            <div id="questions-container">
-                                @* Questions will be loaded here *@
-                            </div>
+                        <div class="section-header mb-3">
+                            <h5>Questions</h5>
+                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                    hx-get="/Templates/AddQuestion?isEdit=true"
+                                    hx-target="#questions-container"
+                                    hx-swap="beforeend">
+                                <i class="fas fa-plus"></i> Add Question
+                            </button>
+                        </div>
 
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Save Changes
-                                </button>
-                                <a href="@Url.Action("Index")" class="btn btn-secondary">
-                                    <i class="fas fa-arrow-left"></i> Back to List
-                                </a>
-                            </div>
-                        </form>
+                        <div id="questions-container">
+                            @for (int i = 0; i < Model.Questions.Count; i++)
+                            {
+                                <div class="question-item card mb-3" id="question-@i">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="card-title mb-0">Question</h6>
+                                            <button type="button" class="btn btn-sm btn-outline-danger remove-question-btn"
+                                                    data-question-id="@i">
+                                                <i class="fas fa-trash"></i> Remove
+                                            </button>
+                                        </div>
+                                        
+                                        <input type="hidden" name="Questions.Index" value="@i" />
+                                        <input type="hidden" asp-for="Questions[i].Id" />
+                                        <input type="hidden" asp-for="Questions[i].IsDeleted" class="is-deleted-field" />
+                                        
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <label class="form-label">Question Text</label>
+                                                <input asp-for="Questions[i].Text" class="form-control" required />
+                                                <span asp-validation-for="Questions[i].Text" class="text-danger"></span>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Type</label>
+                                                <select asp-for="Questions[i].Type" class="form-select" required>
+                                                    @foreach (var questionType in Model.QuestionTypes)
+                                                    {
+                                                        <option value="@((int)questionType)" 
+                                                                selected="@(questionType == Model.Questions[i].Type)">
+                                                            @questionType.ToString()
+                                                        </option>
+                                                    }
+                                                </select>
+                                                <span asp-validation-for="Questions[i].Type" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row mt-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Order</label>
+                                                <input asp-for="Questions[i].Order" class="form-control question-order" 
+                                                       type="number" min="0" />
+                                                <span asp-validation-for="Questions[i].Order" class="text-danger"></span>
+                                            </div>
+                                            <div class="col-md-6 d-flex align-items-end">
+                                                <div class="form-check">
+                                                    <input asp-for="Questions[i].IsRequired" class="form-check-input" 
+                                                           type="checkbox" value="true" />
+                                                    <input asp-for="Questions[i].IsRequired" type="hidden" value="false" />
+                                                    <label class="form-check-label">Required</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Template
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle question removal
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-question-btn')) {
+            const button = e.target.closest('.remove-question-btn');
+            const questionId = button.getAttribute('data-question-id');
+            const questionElement = document.getElementById(`question-${questionId}`);
+            
+            // Check if this is an existing question (has an ID)
+            const idField = questionElement.querySelector('input[name*=".Id"]');
+            const isDeletedField = questionElement.querySelector('.is-deleted-field');
+            
+            if (idField && idField.value && idField.value !== '') {
+                // Existing question - mark as deleted but keep in DOM
+                isDeletedField.value = 'true';
+                questionElement.style.display = 'none';
+            } else {
+                // New question - remove from DOM
+                questionElement.remove();
+            }
+        }
+    });
+});
+</script>

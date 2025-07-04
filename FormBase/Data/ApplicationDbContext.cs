@@ -59,7 +59,7 @@ public class ApplicationDbContext : IdentityDbContext<User>
             .HasOne(f => f.Template)
             .WithMany(t => t.Forms)
             .HasForeignKey(f => f.TemplateId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<Form>()
             .HasOne(f => f.Author)
@@ -71,8 +71,13 @@ public class ApplicationDbContext : IdentityDbContext<User>
             .HasOne(a => a.Question)
             .WithMany(q => q.Answers)
             .HasForeignKey(a => a.QuestionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Answer>()
+            .HasOne(a => a.Form)
+            .WithMany(f => f.Answers)
+            .HasForeignKey(a => a.FormId)
             .OnDelete(DeleteBehavior.Restrict);
-        
         
         builder.Entity<Template>()
             .HasIndex(t => t.AuthorId);
@@ -91,5 +96,8 @@ public class ApplicationDbContext : IdentityDbContext<User>
 
         builder.Entity<Answer>()
             .HasIndex(a => a.QuestionId);
+        
+        builder.Entity<Answer>()
+            .HasIndex(a => a.FormId);
     }
 }

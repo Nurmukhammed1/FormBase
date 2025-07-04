@@ -7,12 +7,10 @@ namespace FormBase.Services;
 public class TemplateService : ITemplateService
 {
     private readonly ApplicationDbContext _context;
-    private readonly ILogger<TemplateService> _logger;
 
-    public TemplateService(ApplicationDbContext context, ILogger<TemplateService> logger)
+    public TemplateService(ApplicationDbContext context)
     {
         _context = context;
-        _logger = logger;
     }
 
     public async Task<IEnumerable<Template>> GetUserTemplatesAsync(string userId)
@@ -39,13 +37,11 @@ public class TemplateService : ITemplateService
 
     public async Task<Template?> GetTemplateByIdAsync(int id)
     {
-        var template = await _context.Templates
+        return await _context.Templates
             .Include(t => t.Author)
             .Include(t => t.Topic)
             .Include(t => t.Questions)
             .FirstOrDefaultAsync(t => t.Id == id);
-
-        return template;
     }
 
     public async Task<Template> CreateTemplateAsync(Template template)
@@ -88,31 +84,45 @@ public class TemplateService : ITemplateService
 
         try
         {
-            _context.Update(template);
+            var existingTemplate = await _context.Templates
+                .Include(ef => ef.Questions)
+                .FirstOrDefaultAsync(ef => ef.Id == template.Id);
+            
+            if (existingTemplate == null) throw new InvalidOperationException($"Template with ID {template.Id} not found.");
+
+            var updatedQuestionIds = template.Questions.Select(q => q.Id).ToList();
+            var existingQuestionIds = existingTemplate.Questions.Select(q => q.Id).ToList();
+
+            var questionsToRemove = existingTemplate.Questions
+                .Where(q => !updatedQuestionIds.Contains(q.Id))
+                .ToList();
+
+            var questionsToCreate = template.Questions
+                .Where(q => !existingQuestionIds.Contains(q.Id))
+                .ToList();
+
+            var questionsToUpdate = template.Questions
+                .Where(q => existingQuestionIds.Contains(q.Id))
+                .ToList();
+            
+            _context.Questions.RemoveRange(questionsToRemove);
+            _context.Questions.AddRange(questionsToCreate);
+            _context.Questions.UpdateRange(questionsToUpdate);
+            _context.Templates.Update(template);
             await _context.SaveChangesAsync();
-
-            if (template.Questions.Any())
-            {
-                foreach (var question in template.Questions)
-                {
-                    question.TemplateId = template.Id;
-                }
-
-                await _context.SaveChangesAsync();
-            }
-
             await transaction.CommitAsync();
+
             return template;
         }
         catch (DbUpdateException ex)
         {
             await transaction.RollbackAsync();
-            throw new DbUpdateException("Failed to create template due to databse error.", ex);
+            throw new DbUpdateException("Failed to update template due to database error.", ex);
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            throw new InvalidOperationException("An unexpected error occured while creating the template.", ex);
+            throw new InvalidOperationException("An unexpected error occured while updating the template.", ex);
         }
     }
 
