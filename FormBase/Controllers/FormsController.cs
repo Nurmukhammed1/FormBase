@@ -111,14 +111,25 @@ public class FormsController : Controller
         if (form == null) return NotFound();
         
         var userId = _userManager.GetUserId(User);
-        
         if (!CanUserEditForm(form, userId)) return Forbid();
         
-        form.Answers = model.Answers;
-
+        MapAnswers(model, form);
         await _formService.UpdateFormAsync(form);
             
         return RedirectToAction(nameof(Details), new { id = form.Id });
+    }
+
+    private void MapAnswers(CreateEditFormViewModel model, Form form)
+    {
+        foreach (var modelAnswer in model.Answers)
+        {
+            var existingAnswer = form.Answers.FirstOrDefault(a => a.Id == modelAnswer.Id);
+            existingAnswer.StringValue = modelAnswer.StringValue;
+            existingAnswer.TextValue = modelAnswer.TextValue;
+            existingAnswer.IntegerValue = modelAnswer.IntegerValue;
+            existingAnswer.BooleanValue = modelAnswer.BooleanValue;
+            existingAnswer.UpdatedAt = DateTime.UtcNow;
+        }
     }
     
     

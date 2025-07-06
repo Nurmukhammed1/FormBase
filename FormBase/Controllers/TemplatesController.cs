@@ -249,7 +249,7 @@ public class TemplatesController : Controller
             return RedirectToAction(nameof(Details), new { id });
         }
         
-        TempData["SuccessMessage"] = "Form deleted successfully.";
+        TempData["SuccessMessage"] = "Template deleted successfully.";
         return RedirectToAction(nameof(Index));
     }
     

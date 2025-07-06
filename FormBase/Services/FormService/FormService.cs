@@ -83,50 +83,10 @@ public class FormService : IFormService
 
     public async Task<Form> UpdateFormAsync(Form form)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        _context.Forms.Update(form);
+        await _context.SaveChangesAsync();
 
-        try
-        {
-            var existingForm = await _context.Forms
-                .Include(ef => ef.Answers)
-                .FirstOrDefaultAsync(ef => ef.Id == form.Id);
-            
-            if (existingForm == null) throw new InvalidOperationException($"Form with ID {form.Id} not found.");
-
-            var updatedAnswerIds = form.Answers.Select(a => a.Id).ToList();
-            var existingAnswerIds = existingForm.Answers.Select(a => a.Id).ToList();
-
-            var answersToRemove = existingForm.Answers
-                .Where(a => !updatedAnswerIds.Contains(a.Id))
-                .ToList();
-
-            var answersToCreate = form.Answers
-                .Where(a => !existingAnswerIds.Contains(a.Id))
-                .ToList();
-
-            var answersToUpdate = form.Answers
-                .Where(a => existingAnswerIds.Contains(a.Id))
-                .ToList();
-            
-            _context.Answers.RemoveRange(answersToRemove);
-            _context.Answers.AddRange(answersToCreate);
-            _context.Answers.UpdateRange(answersToUpdate);
-            _context.Forms.Update(form);
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
-
-            return form;
-        }
-        catch (DbUpdateException ex)
-        {
-            await transaction.RollbackAsync();
-            throw new InvalidOperationException("Failed to update form due to databse error.", ex);
-        }
-        catch (Exception ex)
-        {
-            await transaction.RollbackAsync();
-            throw new InvalidOperationException("An unexpected error occured while updating the form.", ex);
-        }
+        return form;
     }
 
     public async Task<bool> DeleteFormAsync(int id)
