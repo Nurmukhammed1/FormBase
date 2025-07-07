@@ -94,6 +94,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvVGVtcGxhdGVzL0luZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/nurmukhammedkanafin/RiderProjects/FormBase/FormBase/Views/Templates/TopicTemplates.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvVGVtcGxhdGVzL1RvcGljVGVtcGxhdGVzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/nurmukhammedkanafin/RiderProjects/FormBase/FormBase/Views/Templates/UserTemplates.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvVGVtcGxhdGVzL1VzZXJUZW1wbGF0ZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/nurmukhammedkanafin/RiderProjects/FormBase/FormBase/Views/Templates/_EditQuestionPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvVGVtcGxhdGVzL19FZGl0UXVlc3Rpb25QYXJ0aWFsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 

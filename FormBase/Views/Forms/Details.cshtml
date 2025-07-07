@@ -15,7 +15,6 @@
                     </h3>
                 </div>
                 <div class="card-body">
-                    <!-- Form Metadata -->
                     <div class="mb-4 p-3 bg-light rounded">
                         <div class="row">
                             <div class="col-md-6">
@@ -153,14 +152,14 @@
                     }
                     
                     <div class="d-flex justify-content-between mt-4">
-                        <a href="@Url.Action("Index")" class="btn btn-secondary">
+                        <a asp-action="Index" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Back to Forms
                         </a>
                         
                         @if (Model.CanEdit)
                         {
                             <div>
-                                <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-warning me-2">
+                                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
                                     <i class="fas fa-edit me-2"></i>Edit Form
                                 </a>
                                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">

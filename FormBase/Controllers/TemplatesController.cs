@@ -19,10 +19,56 @@ public class TemplatesController : Controller
         _userManager = userManager;
         _topicService = topicService;
     }
+    
+    [HttpGet]
+    public async Task<IActionResult> Index(string searchTerm)
+    {
+        var model = new MainPageViewModel
+        {
+            SearchTerm = searchTerm,
+            IsSearchPerformed = !string.IsNullOrEmpty(searchTerm)
+        };
+
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            model.SearchResults = await _templateService.SearchTemplatesAsync(searchTerm);
+        }
+        else
+        {
+            model.LatestTemplates = await _templateService.GetLatestTemplatesAsync();
+            model.MostPopularTemplates = await _templateService.GetMostPopularTemplatesAsync();
+        }
+
+        model.Topics = await _templateService.GetTopicsWithTemplateCountAsync();
+
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> TopicTemplates(int id)
+    {
+        var topic = await _templateService.GetTopicsWithTemplateCountAsync();
+        var selectedTopic = topic.FirstOrDefault(t => t.Id == id);
+
+        if (selectedTopic == null)
+        {
+            return NotFound();
+        }
+
+        var templates = await _templateService.GetTemplatesByTopicAsync(id);
+
+        var model = new TopicTemplatesViewModel
+        {
+            Topic = selectedTopic,
+            Templates = templates
+        };
+
+        return View(model);
+    }
 
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> UserTemplates()
     {
         var userId = _userManager.GetUserId(User);
         var templates = await _templateService.GetUserTemplatesAsync(userId);

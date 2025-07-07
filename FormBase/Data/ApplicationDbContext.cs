@@ -99,5 +99,14 @@ public class ApplicationDbContext : IdentityDbContext<User>
         
         builder.Entity<Answer>()
             .HasIndex(a => a.FormId);
+
+
+        builder.Entity<Template>()
+            .HasGeneratedTsVectorColumn(
+                t => t.SearchVector,
+                "english",
+                t => new { t.Title, t.Description })
+            .HasIndex(b => b.SearchVector)
+            .HasMethod("GIN");
     }
 }

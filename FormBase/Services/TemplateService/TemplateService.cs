@@ -21,7 +21,18 @@ public class TemplateService : ITemplateService
         return await _context.Templates
             .Where(t => t.AuthorId == userId)
             .Include(t => t.Topic)
+            .Include(t => t.Questions)
+            .Include(t => t.Forms)
             .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Template>> SearchTemplatesAsync(string searchTerm)
+    {
+        return await _context.Templates
+            .Where(t => t.IsPublic)
+            .Where(t => t.SearchVector.Matches(EF.Functions.PhraseToTsQuery("english", searchTerm)))
+            .OrderByDescending(t => t.SearchVector.Rank(EF.Functions.PhraseToTsQuery("english", searchTerm)))
             .ToListAsync();
     }
 
@@ -32,6 +43,61 @@ public class TemplateService : ITemplateService
             .Include(t => t.Author)
             .Include(t => t.Topic)
             .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<Template>> GetLatestTemplatesAsync(int count = 12)
+    {
+        return await _context.Templates
+            .Where(t => t.IsPublic)
+            .Include(t => t.Author)
+            .Include(t => t.Topic)
+            .OrderByDescending(t => t.CreatedAt)
+            .Take(count)
+            .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<Template>> GetMostPopularTemplatesAsync(int count = 5)
+    {
+        return await _context.Templates
+            .Where(t => t.IsPublic)
+            .Include(t => t.Author)
+            .Include(t => t.Topic)
+            .Include(t => t.Forms)
+            .Select(t => new 
+            {
+                Template = t,
+                FormCount = t.Forms.Count
+            })
+            .OrderByDescending(x => x.FormCount)
+            .Take(count)
+            .Select(x => x.Template)
+            .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<Template>> GetTemplatesByTopicAsync(int topicId)
+    {
+        return await _context.Templates
+            .Where(t => t.IsPublic && t.TopicId == topicId)
+            .Include(t => t.Author)
+            .Include(t => t.Topic)
+            .Include(t => t.Questions)
+            .Include(t => t.Forms)
+            .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<Topic>> GetTopicsWithTemplateCountAsync()
+    {
+        return await _context.Topics
+            .Select(topic => new Topic
+            {
+                Id = topic.Id,
+                Name = topic.Name,
+                Templates = topic.Templates.Where(t => t.IsPublic).ToList()
+            })
+            .Where(topic => topic.Templates.Any())
+            .OrderBy(topic => topic.Name)
             .ToListAsync();
     }
 

@@ -1,38 +1,233 @@
-@model IEnumerable<FormBase.Models.Template>;
-
+@model FormBase.ViewModels.MainPageViewModel
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "FormBase - Create and Share Forms";
     Layout = "_Layout";
 }
 
-<h1>Your Templates</h1>
+<div class="container-fluid">
+    <div class="hero-section bg-primary text-white py-5 mb-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="display-4 fw-bold mb-3">Create Beautiful Forms</h1>
+                    <p class="lead mb-4">Build, share, and collect responses with our easy-to-use form builder</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Create New Template</a>
-</p>
+    <div class="container">
+        @if (Model.IsSearchPerformed)
+        {
+            <div class="row mb-5">
+                <div class="col-12">
+                    <h2 class="h3 mb-4">
+                        Search Results for "@Model.SearchTerm"
+                        <span class="badge bg-secondary">@Model.SearchResults.Count() results</span>
+                    </h2>
+                    
+                    @if (Model.SearchResults.Any())
+                    {
+                        <div class="row">
+                            @foreach (var template in Model.SearchResults)
+                            {
+                                <div class="col-lg-4 col-md-6 mb-4">
+                                    <a asp-action="Details" asp-route-id="@template.Id" class="text-decoration-none">
+                                        <div class="card h-100 shadow-sm template-card">
+                                            <div class="card-body">
+                                                <h5 class="card-title text-dark">@template.Title</h5>
+                                                <p class="card-text text-muted">@template.Description</p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="badge bg-primary">@template.Topic?.Name</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> No templates found matching your search criteria.
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h3 mb-0">
+                            <i class="fas fa-star text-warning"></i> Latest Templates
+                        </h2>
+                    </div>
+                    
+                    <div class="row">
+                        @foreach (var template in Model.LatestTemplates)
+                        {
+                            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                                <a asp-action="Details" asp-route-id="@template.Id" class="text-decoration-none">
+                                    <div class="card h-100 shadow-sm template-card">
+                                        <div class="card-body p-3">
+                                            <h6 class="card-title mb-2 text-dark">@template.Title</h6>
+                                            <p class="card-text small text-muted mb-2">
+                                                @(template.Description?.Length > 50 ? template.Description.Substring(0, 50) + "..." : template.Description)
+                                            </p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-primary badge-sm">@template.Topic?.Name</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h3 mb-0">
+                            <i class="fas fa-fire text-danger"></i> Most Popular Templates
+                        </h2>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Rank</th>
+                                            <th>Template</th>
+                                            <th>Author</th>
+                                            <th>Topic</th>
+                                            <th>Forms Filled</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            var rank = 1;
+                                        }
+                                        @foreach (var template in Model.MostPopularTemplates)
+                                        {
+                                            <tr class="clickable-row" data-href="@Url.Action("Details", "Templates", new { id = template.Id })">
+                                                <td>
+                                                    <span class="badge bg-primary">#@rank</span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div>
+                                                            <div class="fw-medium">@template.Title</div>
+                                                            <small class="text-muted">@template.Description</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <i class="fas fa-user"></i> @template.Author?.UserName
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-outline-primary">@template.Topic?.Name</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-success">@template.Forms.Count</span>
+                                                </td>
+                                            </tr>
+                                            rank++;
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="h3 mb-4">
+                    <i class="fas fa-tags text-info"></i> Browse by Topic
+                </h2>
+                
+                <div class="row">
+                    @foreach (var topic in Model.Topics)
+                    {
+                        <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-3">
+                            <a asp-action="TopicTemplates" asp-route-id="@topic.Id" class="text-decoration-none">
+                                <div class="card text-center h-100 topic-card">
+                                    <div class="card-body">
+                                        <i class="fas fa-folder fa-2x text-primary mb-2"></i>
+                                        <h6 class="card-title text-dark">@topic.Name</h6>
+                                        <span class="badge bg-light text-dark">@topic.Templates.Count templates</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-<table class="table">
-    <thead>
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.Title)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Topic)
-        </th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var template in Model)
-    {
-        <tr>
-            <td>
-                <a asp-action="Details" asp-route-id="@template.Id">@Html.DisplayFor(modelItem => template.Title)</a>
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => template.Topic.Name)
-            </td>
-        </tr>
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
-    </tbody>
-</table>
+    
+    .template-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .template-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+    
+    .topic-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .topic-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .badge-sm {
+        font-size: 0.7em;
+    }
+    
+    .table th {
+        border-top: none;
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .clickable-row {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    
+    .clickable-row:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const clickableRows = document.querySelectorAll('.clickable-row');
+        clickableRows.forEach(row => {
+            row.addEventListener('click', function() {
+                window.location.href = this.dataset.href;
+            });
+        });
+    });
+</script>

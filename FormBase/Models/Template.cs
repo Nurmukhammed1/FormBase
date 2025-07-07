@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using NpgsqlTypes;
 
 namespace FormBase.Models;
 
@@ -18,4 +19,5 @@ public class Template
     public List<Question> Questions { get; set; } = new List<Question>();
     public List<Form> Forms { get; set; } = new List<Form>();
     public List<TemplateUser> AllowedUsers { get; set; } = new List<TemplateUser>();
+    public NpgsqlTsVector SearchVector { get; set; }
 }

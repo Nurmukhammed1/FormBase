@@ -1,0 +1,251 @@
+@model IEnumerable<FormBase.Models.Template>
+
+@{
+    ViewData["Title"] = "My Templates";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="templates-header bg-light py-4 mb-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h2 mb-2">
+                                <i class="fas fa-clipboard-list text-primary"></i> Your Templates
+                            </h1>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-file-alt"></i> @(Model?.Count() ?? 0) templates created
+                            </p>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <a asp-action="Create" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create New Template
+                            </a>
+                            
+                            @if (Model != null && Model.Any())
+                            {
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-outline-secondary" id="gridView">
+                                        <i class="fas fa-th"></i> Grid
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" id="listView">
+                                        <i class="fas fa-list"></i> List
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        @if (Model != null && Model.Any())
+        {
+            <div id="templates-grid" class="row">
+                @foreach (var template in Model)
+                {
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <a asp-action="Details" asp-route-id="@template.Id" class="text-decoration-none">
+                            <div class="card h-100 shadow-sm template-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h5 class="card-title text-dark mb-0">@template.Title</h5>
+                                        <span class="badge bg-primary">@template.Topic?.Name</span>
+                                    </div>
+                                    
+                                    <p class="card-text text-muted mb-3">
+                                        @(template.Description?.Length > 100 ? template.Description.Substring(0, 100) + "..." : template.Description)
+                                    </p>
+                                    
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Forms Filled</small>
+                                            <strong class="text-success">@(template.Forms?.Count ?? 0)</strong>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Questions</small>
+                                            <strong class="text-info">@(template.Questions?.Count ?? 0)</strong>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar"></i> Created @template.CreatedAt.ToString("MMM dd, yyyy")
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+            
+            <div id="templates-list" class="d-none">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th scope="col">Template</th>
+                                                <th scope="col">Topic</th>
+                                                <th scope="col">Created</th>
+                                                <th scope="col">Forms</th>
+                                                <th scope="col">Questions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var template in Model)
+                                            {
+                                                <tr class="clickable-row" data-href="@Url.Action("Details", "Templates", new { id = template.Id })">
+                                                    <td>
+                                                        <div>
+                                                            <div class="fw-medium text-primary">@template.Title</div>
+                                                            @if (!string.IsNullOrEmpty(template.Description))
+                                                            {
+                                                                <small class="text-muted">@(template.Description.Length > 80 ? template.Description.Substring(0, 80) + "..." : template.Description)</small>
+                                                            }
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-primary">@template.Topic?.Name</span>
+                                                    </td>
+                                                    <td>
+                                                        <div>@template.CreatedAt.ToString("MMM dd, yyyy")</div>
+                                                        <small class="text-muted">@template.CreatedAt.ToString("HH:mm")</small>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-success">@(template.Forms?.Count ?? 0)</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-info">@(template.Questions?.Count ?? 0)</span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-clipboard-list fa-5x text-muted"></i>
+                        </div>
+                        <h4 class="text-muted mb-3">No Templates Found</h4>
+                        <p class="text-muted mb-4">You haven't created any templates yet. Get started by creating your first template!</p>
+                        <a asp-action="Create" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus me-2"></i>Create Your First Template
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .templates-header {
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .template-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .template-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    .btn-group .btn {
+        border-radius: 0;
+    }
+    
+    .btn-group .btn:first-child {
+        border-top-left-radius: 0.375rem;
+        border-bottom-left-radius: 0.375rem;
+    }
+    
+    .btn-group .btn:last-child {
+        border-top-right-radius: 0.375rem;
+        border-bottom-right-radius: 0.375rem;
+    }
+    
+    .table th {
+        border-top: none;
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .clickable-row {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    
+    .clickable-row:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .table-light {
+        background-color: #f8f9fa;
+    }
+    
+    .table-light th {
+        background-color: #e9ecef;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .gap-2 {
+        gap: 0.5rem;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const gridViewBtn = document.getElementById('gridView');
+        const listViewBtn = document.getElementById('listView');
+        const templatesGrid = document.getElementById('templates-grid');
+        const templatesList = document.getElementById('templates-list');
+        
+        if (gridViewBtn && listViewBtn) {
+            gridViewBtn.classList.add('active');
+            
+            gridViewBtn.addEventListener('click', function() {
+                templatesGrid.classList.remove('d-none');
+                templatesList.classList.add('d-none');
+                gridViewBtn.classList.add('active');
+                listViewBtn.classList.remove('active');
+            });
+            
+            listViewBtn.addEventListener('click', function() {
+                templatesGrid.classList.add('d-none');
+                templatesList.classList.remove('d-none');
+                listViewBtn.classList.add('active');
+                gridViewBtn.classList.remove('active');
+            });
+        }
+        
+        const clickableRows = document.querySelectorAll('.clickable-row');
+        clickableRows.forEach(row => {
+            row.addEventListener('click', function() {
+                window.location.href = this.dataset.href;
+            });
+        });
+    });
+</script>

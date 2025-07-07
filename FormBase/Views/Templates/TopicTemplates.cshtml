@@ -1,0 +1,236 @@
+@model FormBase.ViewModels.TopicTemplatesViewModel
+@{
+ViewData["Title"] = $"{Model.Topic.Name} Templates - FormBase";
+Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="topic-header bg-light py-4 mb-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a asp-action="Index">
+                                    <i class="fas fa-home"></i> Home
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active">@Model.Topic.Name</li>
+                        </ol>
+                    </nav>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h2 mb-2">
+                                <i class="fas fa-folder-open text-primary"></i> @Model.Topic.Name Templates
+                            </h1>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-file-alt"></i> @Model.Templates.Count() templates available
+                            </p>
+                        </div>
+
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary" id="gridView">
+                                <i class="fas fa-th"></i> Grid
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="listView">
+                                <i class="fas fa-list"></i> List
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        @if (Model.Templates.Any())
+        {
+        <div id="templates-grid" class="row">
+            @foreach (var template in Model.Templates)
+            {
+            <div class="col-lg-4 col-md-6 mb-4">
+                <a asp-action="Details" asp-route-id="@template.Id" class="text-decoration-none">
+                    <div class="card h-100 shadow-sm template-card">
+                        <div class="card-body">
+                            <h5 class="card-title text-dark">@template.Title</h5>
+                            <p class="card-text text-muted">@template.Description</p>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar"></i> @template.CreatedAt.ToString("MMM dd, yyyy")
+                                </small>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle"></i> @template.Forms.Count forms filled
+                                        </span>
+                                <span class="badge bg-info">
+                                            <i class="fas fa-question-circle"></i> @template.Questions.Count questions
+                                        </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            }
+        </div>
+
+        <div id="templates-list" class="d-none">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Template</th>
+                                        <th>Author</th>
+                                        <th>Created</th>
+                                        <th>Forms</th>
+                                        <th>Questions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach (var template in Model.Templates)
+                                    {
+                                    <tr class="clickable-row" data-href="@Url.Action("Details", "Templates", new { id = template.Id })">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <div class="fw-medium">@template.Title</div>
+                                                    <small class="text-muted">@template.Description</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-user"></i> @template.Author?.UserName
+                                        </td>
+                                        <td>
+                                            <small>@template.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">@template.Forms.Count</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">@template.Questions.Count</span>
+                                        </td>
+                                    </tr>
+                                    }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+        else
+        {
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-folder-open fa-4x text-muted mb-4"></i>
+                    <h3 class="text-muted mb-3">No Templates Found</h3>
+                    <p class="text-muted mb-4">There are no templates available in the "@Model.Topic.Name" category yet.</p>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create First Template
+                    </a>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+</div>
+
+<style>
+    .topic-header {
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .template-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+
+    .template-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .breadcrumb {
+        background: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: ">";
+        color: #6c757d;
+    }
+
+    .btn-group .btn {
+        border-radius: 0;
+    }
+
+    .btn-group .btn:first-child {
+        border-top-left-radius: 0.375rem;
+        border-bottom-left-radius: 0.375rem;
+    }
+
+    .btn-group .btn:last-child {
+        border-top-right-radius: 0.375rem;
+        border-bottom-right-radius: 0.375rem;
+    }
+
+    .table th {
+        border-top: none;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .clickable-row {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .clickable-row:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const gridViewBtn = document.getElementById('gridView');
+        const listViewBtn = document.getElementById('listView');
+        const templatesGrid = document.getElementById('templates-grid');
+        const templatesList = document.getElementById('templates-list');
+
+        gridViewBtn.classList.add('active');
+
+        gridViewBtn.addEventListener('click', function() {
+            templatesGrid.classList.remove('d-none');
+            templatesList.classList.add('d-none');
+            gridViewBtn.classList.add('active');
+            listViewBtn.classList.remove('active');
+        });
+
+        listViewBtn.addEventListener('click', function() {
+            templatesGrid.classList.add('d-none');
+            templatesList.classList.remove('d-none');
+            listViewBtn.classList.add('active');
+            gridViewBtn.classList.remove('active');
+        });
+        
+        const clickableRows = document.querySelectorAll('.clickable-row');
+        clickableRows.forEach(row => {
+            row.addEventListener('click', function() {
+                window.location.href = this.dataset.href;
+            });
+        });
+    });
+</script>

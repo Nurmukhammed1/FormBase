@@ -6,93 +6,226 @@
 }
 
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">@ViewData["Title"]</h2>
-                <a href="@Url.Action("Create", "Form")" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Create New Form
-                </a>
+    <div class="forms-header bg-light py-4 mb-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h2 mb-2">
+                                <i class="fas fa-file-alt text-primary"></i> My Forms
+                            </h1>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-clipboard-list"></i> @(Model?.Count() ?? 0) forms available
+                            </p>
+                        </div>
+                        
+                        @if (Model != null && Model.Any())
+                        {
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-secondary" id="gridView">
+                                    <i class="fas fa-th"></i> Grid
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" id="listView">
+                                    <i class="fas fa-list"></i> List
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
+        </div>
+    </div>
 
-            @if (Model != null && Model.Any())
-            {
-                <div class="card">
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th scope="col">Template</th>
-                                        <th scope="col">Author</th>
-                                        <th scope="col">Filled At</th>
-                                        <th scope="col">Last Updated</th>
-                                        <th scope="col">Answers</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var form in Model)
-                                    {
-                                        <tr>
-                                            <td>
-                                                <a asp-action="Details" asp-route-id="@form.Id">
-                                                <span class="badge bg-info text-dark">
-                                                    @form.Template?.Title
-                                                </span>
-                                                </a>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar-sm bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2">
-                                                        <i class="fas fa-user text-white"></i>
-                                                    </div>
-                                                    @(form.Author?.UserName ?? form.Author?.Email ?? "Unknown Author")
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <small class="text-muted">
-                                                    @form.FilledAt.ToString("MMM dd, yyyy")
-                                                </small>
-                                                <br>
-                                                <small class="text-muted">
-                                                    @form.FilledAt.ToString("HH:mm")
-                                                </small>
-                                            </td>
-                                            <td>
-                                                <small class="text-muted">
-                                                    @form.UpdatedAt.ToString("MMM dd, yyyy")
-                                                </small>
-                                                <br>
-                                                <small class="text-muted">
-                                                    @form.UpdatedAt.ToString("HH:mm")
-                                                </small>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-success">
-                                                    @(form.Answers?.Count ?? 0) answers
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+    <div class="container">
+        @if (Model != null && Model.Any())
+        {
+            <div id="forms-grid" class="row">
+                @foreach (var form in Model)
+                {
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <a href="@Url.Action("Details", "Form", new { id = form.Id })" class="text-decoration-none">
+                            <div class="card h-100 shadow-sm form-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h5 class="card-title text-dark mb-0">@form.Template?.Title</h5>
+                                        <span class="badge bg-success">
+                                            @(form.Answers?.Count ?? 0) answers
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Filled At</small>
+                                            <strong class="text-dark">@form.FilledAt.ToString("MMM dd, yyyy")</strong>
+                                            <small class="text-muted d-block">@form.FilledAt.ToString("HH:mm")</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Last Updated</small>
+                                            <strong class="text-dark">@form.UpdatedAt.ToString("MMM dd, yyyy")</strong>
+                                            <small class="text-muted d-block">@form.UpdatedAt.ToString("HH:mm")</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+            
+            <div id="forms-list" class="d-none">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th scope="col">Template</th>
+                                                <th scope="col">Filled At</th>
+                                                <th scope="col">Last Updated</th>
+                                                <th scope="col">Answers</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var form in Model)
+                                            {
+                                                <tr class="clickable-row" data-href="@Url.Action("Details", "Forms", new { id = form.Id })">
+                                                    <td>
+                                                        <div class="fw-medium text-primary">@form.Template?.Title</div>
+                                                    </td>
+                                                    <td>
+                                                        <div>@form.FilledAt.ToString("MMM dd, yyyy")</div>
+                                                        <small class="text-muted">@form.FilledAt.ToString("HH:mm")</small>
+                                                    </td>
+                                                    <td>
+                                                        <div>@form.UpdatedAt.ToString("MMM dd, yyyy")</div>
+                                                        <small class="text-muted">@form.UpdatedAt.ToString("HH:mm")</small>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-success">
+                                                            @(form.Answers?.Count ?? 0) answers
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            }
-            else
-            {
-                <div class="text-center py-5">
-                    <div class="mb-4">
-                        <i class="fas fa-file-alt fa-5x text-muted"></i>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-file-alt fa-5x text-muted"></i>
+                        </div>
+                        <h4 class="text-muted mb-3">No Forms Found</h4>
+                        <p class="text-muted mb-4">You haven't created any forms yet. Get started by creating your first form!</p>
                     </div>
-                    <h4 class="text-muted">No Forms Found</h4>
-                    <p class="text-muted mb-4">You haven't created any forms yet. Get started by creating your first form!</p>
-                    <a href="@Url.Action("Create", "Form")" class="btn btn-primary btn-lg">
-                        <i class="fas fa-plus me-2"></i>Create Your First Form
-                    </a>
                 </div>
-            }
-        </div>
+            </div>
+        }
     </div>
 </div>
+
+<style>
+    .forms-header {
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .form-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .form-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    .avatar-sm {
+        width: 32px;
+        height: 32px;
+        font-size: 0.875rem;
+    }
+    
+    .btn-group .btn {
+        border-radius: 0;
+    }
+    
+    .btn-group .btn:first-child {
+        border-top-left-radius: 0.375rem;
+        border-bottom-left-radius: 0.375rem;
+    }
+    
+    .btn-group .btn:last-child {
+        border-top-right-radius: 0.375rem;
+        border-bottom-right-radius: 0.375rem;
+    }
+    
+    .table th {
+        border-top: none;
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .clickable-row {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    
+    .clickable-row:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .table-light {
+        background-color: #f8f9fa;
+    }
+    
+    .table-light th {
+        background-color: #e9ecef;
+        border-bottom: 2px solid #dee2e6;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const gridViewBtn = document.getElementById('gridView');
+        const listViewBtn = document.getElementById('listView');
+        const formsGrid = document.getElementById('forms-grid');
+        const formsList = document.getElementById('forms-list');
+        
+        if (gridViewBtn && listViewBtn) {
+            gridViewBtn.classList.add('active');
+            
+            gridViewBtn.addEventListener('click', function() {
+                formsGrid.classList.remove('d-none');
+                formsList.classList.add('d-none');
+                gridViewBtn.classList.add('active');
+                listViewBtn.classList.remove('active');
+            });
+            
+            listViewBtn.addEventListener('click', function() {
+                formsGrid.classList.add('d-none');
+                formsList.classList.remove('d-none');
+                listViewBtn.classList.add('active');
+                gridViewBtn.classList.remove('active');
+            });
+        }
+        
+        const clickableRows = document.querySelectorAll('.clickable-row');
+        clickableRows.forEach(row => {
+            row.addEventListener('click', function() {
+                window.location.href = this.dataset.href;
+            });
+        });
+    });
+</script>
