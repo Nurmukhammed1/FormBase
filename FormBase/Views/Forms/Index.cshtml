@@ -44,7 +44,7 @@
                 @foreach (var form in Model)
                 {
                     <div class="col-lg-4 col-md-6 mb-4">
-                        <a href="@Url.Action("Details", "Form", new { id = form.Id })" class="text-decoration-none">
+                        <a asp-action="Details" asp-route-id="@form.Id" class="text-decoration-none">
                             <div class="card h-100 shadow-sm form-card">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start mb-3">

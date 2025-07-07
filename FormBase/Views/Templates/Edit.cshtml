@@ -34,12 +34,6 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="ImageUrl" class="form-label">Image URL</label>
-                            <input asp-for="ImageUrl" class="form-control"/>
-                            <span asp-validation-for="ImageUrl" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
                             <label asp-for="TopicId" class="form-label">Topic</label>
                             <select asp-for="TopicId" class="form-select">
                                 <option value="">Select a topic...</option>
@@ -105,12 +99,6 @@
                                         </div>
                                         
                                         <div class="row mt-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label">Order</label>
-                                                <input asp-for="Questions[i].Order" class="form-control question-order" 
-                                                       type="number" min="0" />
-                                                <span asp-validation-for="Questions[i].Order" class="text-danger"></span>
-                                            </div>
                                             <div class="col-md-6 d-flex align-items-end">
                                                 <div class="form-check">
                                                     <input asp-for="Questions[i].IsRequired" class="form-check-input" 
@@ -142,23 +130,19 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle question removal
     document.addEventListener('click', function(e) {
         if (e.target.closest('.remove-question-btn')) {
             const button = e.target.closest('.remove-question-btn');
             const questionId = button.getAttribute('data-question-id');
             const questionElement = document.getElementById(`question-${questionId}`);
             
-            // Check if this is an existing question (has an ID)
             const idField = questionElement.querySelector('input[name*=".Id"]');
             const isDeletedField = questionElement.querySelector('.is-deleted-field');
             
             if (idField && idField.value && idField.value !== '') {
-                // Existing question - mark as deleted but keep in DOM
                 isDeletedField.value = 'true';
                 questionElement.style.display = 'none';
             } else {
-                // New question - remove from DOM
                 questionElement.remove();
             }
         }

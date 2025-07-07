@@ -9,8 +9,12 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h6 class="card-title mb-0">Question</h6>
             <button type="button" class="btn btn-sm btn-outline-danger remove-question-btn"
+                    hx-delete="/Templates/RemoveQuestion/@index"
+                    hx-target="#question-@index"
+                    hx-swap="outerHTML"
                     data-question-id="@index">
-                <i class="fas fa-trash"></i> Remove </button>
+                <i class="fas fa-trash"></i> Remove
+            </button>
         </div>
         
         <input type="hidden" name="Questions.Index" value="@index" />
@@ -33,11 +37,6 @@
         </div>
         
         <div class="row mt-3">
-            <div class="col-md-6">
-                <label class="form-label">Order</label>
-                <input name="Questions[@index].Order" class="form-control question-order" 
-                       type="number" min="0" value="0" />
-            </div>
             <div class="col-md-6 d-flex align-items-end">
                 <div class="form-check">
                     <input name="Questions[@index].IsRequired" class="form-check-input" 

@@ -150,7 +150,7 @@ public class TemplatesController : Controller
 
         var result = await _templateService.CreateTemplateAsync(template);
             
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(UserTemplates));
     }
     
     private async Task PopulateCreateViewModelAsync(CreateTemplateViewModel model)
@@ -291,12 +291,10 @@ public class TemplatesController : Controller
 
         if (!result)
         {
-            TempData["ErrorMessage"] = "Failed to delete the template. Please try again.";
             return RedirectToAction(nameof(Details), new { id });
         }
         
-        TempData["SuccessMessage"] = "Template deleted successfully.";
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(UserTemplates));
     }
     
 
@@ -319,7 +317,7 @@ public class TemplatesController : Controller
 
     [Authorize]
     [HttpDelete]
-    public IActionResult RemoveQuestion(string index)
+    public IActionResult RemoveQuestion()
     {
         return Content("");
     }

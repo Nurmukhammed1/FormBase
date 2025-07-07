@@ -29,12 +29,6 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="ImageUrl" class="form-label">Image URL</label>
-                            <input asp-for="ImageUrl" class="form-control"/>
-                            <span asp-validation-for="ImageUrl" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
                             <label asp-for="TopicId" class="form-label">Topic</label>
                             <select asp-for="TopicId" class="form-select">
                                 <option value="">Select a topic...</option>
@@ -66,7 +60,7 @@
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                            <a asp-action="Index" class="btn btn-secondary me-md-2">Cancel</a>
+                            <a asp-action="UserTemplates" class="btn btn-secondary me-md-2">Cancel</a>
                             <button type="submit" class="btn btn-primary">Create Template</button>
                         </div>
                     </form>
@@ -75,4 +69,3 @@
         </div>
     </div>
 </div>
-
